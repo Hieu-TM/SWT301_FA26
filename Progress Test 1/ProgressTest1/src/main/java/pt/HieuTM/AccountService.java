@@ -190,7 +190,26 @@ public class AccountService {
         return ResultCode.SUCCESS;
     }
 
+    /** BR-ADM-03: quản trị viên mở khóa tài khoản bị khóa do đăng nhập sai. */
+    public ResultCode unlockAccount(String username) {
+        Optional<Account> account = findByUsername(username);
+        if (account.isEmpty()) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        account.get().unlock();
+        return ResultCode.SUCCESS;
+    }
 
+    public Optional<Account> findByUsername(String username) {
+        if (isBlank(username)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(accountsByUsername.get(key(username)));
+    }
+
+    public boolean isLocked(String username) {
+        return findByUsername(username).map(Account::isLocked).orElse(false);
+    }
 
     // ================= Helpers =================
     /** Dùng chung cho changePassword và resetPassword: CHG-04 -> 05 -> 06 -> 07. */
