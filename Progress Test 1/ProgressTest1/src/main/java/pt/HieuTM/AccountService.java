@@ -71,6 +71,37 @@ public class AccountService {
         return ResultCode.SUCCESS;
     }
 
+
+    // ================= Quản trị & truy vấn =================
+    public ResultCode disableAccount(String username) {
+        Optional<Account> account = findByUsername(username);
+        if (account.isEmpty()) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        account.get().setStatus(AccountStatus.DISABLED);
+        return ResultCode.SUCCESS;
+    }
+
+    /** BR-ADM-03: quản trị viên mở khóa tài khoản bị khóa do đăng nhập sai. */
+    public ResultCode unlockAccount(String username) {
+        Optional<Account> account = findByUsername(username);
+        if (account.isEmpty()) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        account.get().unlock();
+        return ResultCode.SUCCESS;
+    }
+
+    public Optional<Account> findByUsername(String username) {
+        if (isBlank(username)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(accountsByUsername.get(key(username)));
+    }
+
+    public boolean isLocked(String username) {
+        return findByUsername(username).map(Account::isLocked).orElse(false);
+    }
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
     }
@@ -78,6 +109,8 @@ public class AccountService {
     private static String key(String s) {
         return s.toLowerCase(Locale.ROOT);
     }
+
+
 
 
 }
